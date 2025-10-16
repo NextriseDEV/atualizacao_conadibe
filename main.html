@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Convencionados - CONADIBE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Fundo cinza claro azulado */
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+        /* Cor primária inspirada no logo (azul escuro) */
+        .primary-bg { background-color: #0d2d5a; }
+        .primary-text { color: #0d2d5a; }
+        /* Cor de destaque inspirada no logo (dourado/laranja) */
+        .accent-bg { background-color: #d4a017; }
+        .accent-text { color: #d4a017; }
+        .accent-border { border-color: #d4a017; }
+
+        .progress-bar-fill {
+            transition: width 0.5s ease-in-out;
+        }
+
+        .form-input {
+            border: 1px solid #cbd5e1;
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            border-color: #d4a017;
+            box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.2);
+            outline: none;
+        }
+        .btn-primary {
+            background-color: #0d2d5a;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #1a4a91;
+        }
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #475569;
+            transition: background-color 0.3s;
+        }
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+        /* Estilo para spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0d2d5a;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6 md:p-8">
+        <div class="text-center mb-6">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrVYE4Dq0DrhQaUBX5SAGsTEGEpqMG6aP37ZEBQsB-WCzCp33DcoNyqDYX0koM1s5TG5Y&usqp=CAU" alt="Logotipo CONADIBE" class="mx-auto h-20 w-auto mb-4">
+            <h1 class="text-2xl md:text-3xl font-bold primary-text">Cadastro de Ministros</h1>
+            <p class="text-gray-600 mt-2">Convenção Nacional das Assembleias de Deus Independentes no Brasil e Exterior</p>
+        </div>
+
+        <!-- Barra de Progresso -->
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+            <div id="progressBar" class="accent-bg h-2.5 rounded-full progress-bar-fill" style="width: 0%"></div>
+        </div>
+        <p id="progressMessage" class="text-center text-sm text-gray-500 mb-6 italic"></p>
+
+
+        <form id="regForm" novalidate>
+            <!-- Etapa 1: Boas-vindas -->
+            <div class="form-step active">
+                <h2 class="text-xl font-semibold text-center primary-text mb-4">Seja bem-vindo(a)!</h2>
+                <p class="text-center text-gray-700 mb-8">Este formulário é para o cadastro e atualização de dados para a emissão da sua credencial. Pressione "Iniciar" para começar.</p>
+            </div>
+
+            <!-- Etapa 2: Dados Pessoais -->
+            <div class="form-step">
+                <h2 class="text-xl font-semibold primary-text mb-4">1. Dados Pessoais</h2>
+                <div class="grid grid-cols-1 gap-4">
+                    <input type="text" placeholder="Nome Completo" name="nomeCompleto" class="w-full p-3 rounded-lg form-input" required>
+                    <select name="sexo" class="w-full p-3 rounded-lg form-input bg-white" required>
+                        <option value="" disabled selected>Selecione o Sexo</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                    </select>
+                    <div>
+                        <label class="text-sm font-medium text-gray-600">Data de Nascimento</label>
+                        <input type="text" placeholder="DD/MM/AAAA" name="dataNascimento" class="w-full p-3 rounded-lg form-input" required oninput="maskDate(this)">
+                    </div>
+                    <input type="text" placeholder="Naturalidade (Ex: Rio de Janeiro - RJ)" name="naturalidade" class="w-full p-3 rounded-lg form-input" required>
+                    <input type="text" placeholder="Nome Completo da Mãe" name="nomeMae" class="w-full p-3 rounded-lg form-input" required>
+                    <input type="text" placeholder="Nome Completo do Pai" name="nomePai" class="w-full p-3 rounded-lg form-input">
+                </div>
+            </div>
+
+            <!-- Etapa 3: Dados Ministeriais -->
+            <div class="form-step">
+                <h2 class="text-xl font-semibold primary-text mb-4">2. Dados Ministeriais</h2>
+                <div class="grid grid-cols-1 gap-4">
+                    <select name="cargoEclesiastico" class="w-full p-3 rounded-lg form-input bg-white" required>
+                        <option value="" disabled selected>Cargo Eclesiástico (Convenção)</option>
+                        <option value="PASTOR">PASTOR</option>
+                        <option value="EVANGELISTA">EVANGELISTA</option>
+                        <option value="MISSIONARIO">MISSIONÁRIO</option>
+                        <option value="MISSIONARIA">MISSIONÁRIA</option>
+                        <option value="PASTORA">PASTORA</option>
+                    </select>
+                     <div>
+                        <label class="text-sm font-medium text-gray-600">Data da Consagração ao Cargo Atual</label>
+                        <input type="text" placeholder="DD/MM/AAAA" name="dataConsagracao" class="w-full p-3 rounded-lg form-input" required oninput="maskDate(this)">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-600">Data do Batismo nas Águas</label>
+                        <input type="text" placeholder="DD/MM/AAAA" name="dataBatismo" class="w-full p-3 rounded-lg form-input" required oninput="maskDate(this)">
+                    </div>
+                    <input type="text" placeholder="Ministério ou Campo (Igreja)" name="ministerioCampo" class="w-full p-3 rounded-lg form-input uppercase" required>
+                </div>
+            </div>
+            
+            <!-- Etapa 4: Documentos e Contato -->
+            <div class="form-step">
+                <h2 class="text-xl font-semibold primary-text mb-4">3. Documentos e Contato</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" placeholder="CPF" name="cpf" class="p-3 rounded-lg form-input" required oninput="maskCPF(this)">
+                    <input type="text" placeholder="RG" name="rg" class="p-3 rounded-lg form-input" required>
+                    <input type="tel" placeholder="Celular com DDD (WhatsApp)" name="celular" class="p-3 rounded-lg form-input md:col-span-2" required oninput="maskPhone(this)">
+                    <input type="email" placeholder="Seu melhor E-mail" name="email" class="p-3 rounded-lg form-input md:col-span-2">
+                </div>
+            </div>
+
+            <!-- Etapa 5: Endereço -->
+            <div class="form-step">
+                <h2 class="text-xl font-semibold primary-text mb-4">4. Endereço</h2>
+                <div class="grid grid-cols-1 gap-4">
+                    <input type="text" placeholder="Digite o CEP" name="cep" id="cep" class="p-3 rounded-lg form-input" oninput="maskCEP(this)" onblur="buscarCEP()">
+                    <div id="cep-loader" class="hidden items-center gap-2 text-gray-600"><div class="loader-sm"></div> Buscando endereço...</div>
+                    <input type="text" placeholder="Rua / Avenida" name="rua" id="rua" class="p-3 rounded-lg form-input bg-gray-100" readonly>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Número" name="numero" class="p-3 rounded-lg form-input">
+                        <input type="text" placeholder="Complemento (Opcional)" name="complemento" class="p-3 rounded-lg form-input">
+                    </div>
+                    <input type="text" placeholder="Bairro" name="bairro" id="bairro" class="p-3 rounded-lg form-input bg-gray-100" readonly>
+                    <input type="text" placeholder="Cidade" name="cidade" id="cidade" class="p-3 rounded-lg form-input bg-gray-100" readonly>
+                    <input type="text" placeholder="Estado (UF)" name="uf" id="uf" class="p-3 rounded-lg form-input bg-gray-100" readonly>
+                </div>
+            </div>
+            
+            <!-- Etapa 6: Informações Adicionais -->
+            <div class="form-step">
+                 <h2 class="text-xl font-semibold primary-text mb-4">5. Informações Complementares</h2>
+                 <div class="space-y-4">
+                    <select name="estadoCivil" id="estadoCivil" class="w-full p-3 rounded-lg form-input bg-white" onchange="toggleConjugeFields()">
+                        <option value="" disabled selected>Estado Civil</option>
+                        <option value="Solteiro(a)">Solteiro(a)</option>
+                        <option value="Casado(a)">Casado(a)</option>
+                        <option value="Divorciado(a)">Divorciado(a)</option>
+                        <option value="Viúvo(a)">Viúvo(a)</option>
+                    </select>
+                    <div id="conjugeFields" class="hidden space-y-4 border p-4 rounded-lg">
+                         <h3 class="font-medium text-gray-700">Dados do Cônjuge</h3>
+                         <input type="text" placeholder="Nome do Cônjuge" name="nomeConjuge" class="w-full p-3 rounded-lg form-input">
+                         <div>
+                            <label class="text-sm font-medium text-gray-600">Nascimento do Cônjuge</label>
+                            <input type="text" placeholder="DD/MM/AAAA" name="nascimentoConjuge" class="w-full p-3 rounded-lg form-input" oninput="maskDate(this)">
+                         </div>
+                         <div>
+                            <label class="text-sm font-medium text-gray-600">Data de Casamento</label>
+                            <input type="text" placeholder="DD/MM/AAAA" name="dataCasamento" class="w-full p-3 rounded-lg form-input" oninput="maskDate(this)">
+                         </div>
+                    </div>
+                    <select name="escolaridade" class="w-full p-3 rounded-lg form-input bg-white">
+                        <option value="" disabled selected>Escolaridade</option>
+                        <option value="Fundamental Incompleto">Fundamental Incompleto</option>
+                        <option value="Fundamental Completo">Fundamental Completo</option>
+                        <option value="Médio Incompleto">Médio Incompleto</option>
+                        <option value="Médio Completo">Médio Completo</option>
+                        <option value="Superior Incompleto">Superior Incompleto</option>
+                        <option value="Superior Completo">Superior Completo</option>
+                        <option value="Pós-graduação">Pós-graduação</option>
+                    </select>
+                 </div>
+            </div>
+
+            <!-- Etapa 7: Foto e Finalização -->
+            <div class="form-step">
+                <h2 class="text-xl font-semibold primary-text mb-4">6. Foto e Finalização</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-2 font-medium text-gray-700">Foto para Credencial (3x4)</label>
+                        <p class="text-sm text-gray-500 mb-2">Clique no botão abaixo para <strong>abrir a câmera</strong> e tirar sua foto, ou para escolher uma foto já salva no seu aparelho.</p>
+                        <input type="file" name="foto" id="fotoInput" accept="image/*" capture="environment" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                         <img id="preview" src="" alt="Prévia da foto" class="hidden mt-4 rounded-lg max-h-48 mx-auto"/>
+                    </div>
+                    <textarea name="observacoes" placeholder="Observações Gerais (Opcional)" rows="4" class="w-full p-3 rounded-lg form-input"></textarea>
+                </div>
+            </div>
+
+            <!-- Botões de Navegação -->
+            <div class="mt-8 flex justify-between items-center">
+                <button type="button" id="prevBtn" onclick="nextPrev(-1)" class="py-2 px-6 rounded-lg font-semibold btn-secondary" style="display:none;">Voltar</button>
+                <button type="button" id="nextBtn" onclick="nextPrev(1)" class="py-2 px-6 rounded-lg font-semibold btn-primary">Iniciar</button>
+                <div id="loader" class="hidden loader"></div>
+            </div>
+            
+             <!-- Mensagem de Sucesso/Erro -->
+            <div id="message" class="hidden mt-6 text-center p-4 rounded-lg"></div>
+        </form>
+    </div>
+
+<script>
+    let currentStep = 0;
+    const steps = document.getElementsByClassName("form-step");
+    const progressBar = document.getElementById("progressBar");
+    const progressMessage = document.getElementById("progressMessage");
+    const SCRIPT_URL = ''; // <-- COLE AQUI A URL DO SEU SCRIPT DO GOOGLE
+
+    document.addEventListener("DOMContentLoaded", function() {
+        showStep(currentStep);
+    });
+
+    function showStep(n) {
+        for (let i = 0; i < steps.length; i++) {
+            steps[i].classList.remove("active");
+        }
+        steps[n].classList.add("active");
+
+        document.getElementById("prevBtn").style.display = n === 0 ? "none" : "inline";
+        
+        if (n === (steps.length - 1)) {
+            document.getElementById("nextBtn").innerHTML = "Enviar Cadastro";
+        } else if (n === 0) {
+            document.getElementById("nextBtn").innerHTML = "Iniciar";
+        } else {
+            document.getElementById("nextBtn").innerHTML = "Avançar";
+        }
+
+        updateProgressBar(n);
+    }
+
+    function updateProgressBar(n) {
+        const totalSteps = steps.length - 1; // Não conta a etapa de boas-vindas
+        let progress = n > 0 ? (n / totalSteps) * 100 : 0;
+        progressBar.style.width = progress + "%";
+        
+        // Mensagens de incentivo
+        switch(n) {
+            case 0: progressMessage.textContent = ""; break;
+            case 1: progressMessage.textContent = "Excelente começo! Vamos para os dados ministeriais."; break;
+            case 2: progressMessage.textContent = "Ótimo! Agora, alguns documentos importantes."; break;
+            case 3: progressMessage.textContent = "Você está indo muito bem! Quase na metade."; break;
+            case 4: progressMessage.textContent = "Falta pouco! Só mais algumas informações."; break;
+            case 5: progressMessage.textContent = "Estamos quase lá! Isso ajuda a conhecermos você melhor."; break;
+            case 6: progressMessage.textContent = "Última etapa! Capriche na foto e envie seu cadastro."; break;
+            default: progressMessage.textContent = "";
+        }
+    }
+
+    function nextPrev(n) {
+        if (n === 1 && !validateForm()) return false;
+
+        // Se for o último passo, submete o formulário
+        if (currentStep >= steps.length - 1 && n === 1) {
+            submitForm();
+            return false;
+        }
+
+        currentStep += n;
+        showStep(currentStep);
+    }
+    
+    function validateForm() {
+        let valid = true;
+        const currentInputs = steps[currentStep].querySelectorAll("input[required], select[required]");
+        
+        currentInputs.forEach(input => {
+            input.classList.remove('border-red-500');
+            if (!input.value) {
+                input.classList.add('border-red-500');
+                valid = false;
+            }
+        });
+        return valid;
+    }
+    
+    // Funções de máscara
+    const mask = (element, mask) => {
+        const unmasked = element.value.replace(/\D/g, '');
+        let masked = '';
+        let k = 0;
+        for (let i = 0; i < mask.length; i++) {
+            if (mask[i] === '#') {
+                if (unmasked[k]) masked += unmasked[k++];
+            } else {
+                if (unmasked[k]) masked += mask[i];
+            }
+        }
+        element.value = masked;
+    };
+    const maskDate = (el) => mask(el, '##/##/####');
+    const maskPhone = (el) => mask(el, '(##) #####-####');
+    const maskCPF = (el) => mask(el, '###.###.###-##');
+    const maskCEP = (el) => mask(el, '#####-###');
+
+    // Busca de CEP
+    async function buscarCEP() {
+        const cepInput = document.getElementById('cep');
+        const cep = cepInput.value.replace(/\D/g, '');
+        const loader = document.getElementById('cep-loader');
+        
+        if (cep.length !== 8) return;
+
+        loader.classList.remove('hidden');
+        try {
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const data = await response.json();
+
+            if (data.erro) {
+                alert("CEP não encontrado. Verifique e tente novamente.");
+                return;
+            }
+            
+            document.getElementById('rua').value = data.logouro;
+            document.getElementById('bairro').value = data.bairro;
+            document.getElementById('cidade').value = data.localidade;
+            document.getElementById('uf').value = data.uf;
+
+        } catch (error) {
+            console.error("Erro ao buscar CEP:", error);
+            alert("Não foi possível buscar o endereço. Tente novamente.");
+        } finally {
+             loader.classList.add('hidden');
+        }
+    }
+
+    // Mostrar/esconder campos do cônjuge
+    function toggleConjugeFields() {
+        const estadoCivil = document.getElementById('estadoCivil').value;
+        const conjugeFields = document.getElementById('conjugeFields');
+        conjugeFields.style.display = estadoCivil === 'Casado(a)' ? 'block' : 'none';
+    }
+
+    // Prévia da foto
+    const fotoInput = document.getElementById('fotoInput');
+    const preview = document.getElementById('preview');
+    fotoInput.onchange = evt => {
+        const [file] = fotoInput.files
+        if (file) {
+            preview.src = URL.createObjectURL(file);
+            preview.classList.remove('hidden');
+        }
+    }
+
+    // Submissão do formulário
+    function submitForm() {
+        if (SCRIPT_URL === '') {
+            alert('ERRO: A URL do Script do Google não foi configurada. Entre em contato com o administrador.');
+            return;
+        }
+
+        const form = document.getElementById('regForm');
+        const fileInput = document.getElementById('fotoInput');
+        const file = fileInput.files[0];
+        const loader = document.getElementById('loader');
+        const messageDiv = document.getElementById('message');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+
+        loader.classList.remove('hidden');
+        nextBtn.classList.add('hidden');
+        prevBtn.classList.add('hidden');
+        messageDiv.classList.add('hidden');
+
+        const fr = new FileReader();
+        fr.readAsDataURL(file);
+
+        fr.onload = (f) => {
+            const fileData = {
+                base64: f.target.result.split(",")[1],
+                type: file.type,
+                name: file.name
+            }
+            
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => data[key] = value);
+
+            const finalPayload = {
+                ...data,
+                foto: fileData
+            };
+            
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(finalPayload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                loader.classList.add('hidden');
+                messageDiv.classList.remove('hidden');
+                if (data.result === 'success') {
+                    messageDiv.textContent = 'Cadastro enviado com sucesso! Obrigado.';
+                    messageDiv.className = 'mt-6 text-center p-4 rounded-lg bg-green-100 text-green-800';
+                    form.reset();
+                    currentStep = 0;
+                    showStep(0);
+                    preview.classList.add('hidden');
+                } else {
+                    throw new Error(data.message || 'Erro desconhecido');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loader.classList.add('hidden');
+                messageDiv.classList.remove('hidden');
+                messageDiv.textContent = `Ocorreu um erro: ${error.message}. Tente novamente.`;
+                messageDiv.className = 'mt-6 text-center p-4 rounded-lg bg-red-100 text-red-800';
+                nextBtn.classList.remove('hidden');
+                prevBtn.classList.remove('hidden');
+            });
+        };
+    }
+
+</script>
+</body>
+</html>
+
+  
