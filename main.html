@@ -207,7 +207,19 @@
                     <div>
                         <label class="block mb-2 font-medium text-gray-700">Foto para Credencial (3x4)</label>
                         <p class="text-sm text-gray-500 mb-2">Clique no botão abaixo para <strong>abrir a câmera</strong> e tirar sua foto, ou para escolher uma foto já salva no seu aparelho.</p>
-                        <input type="file" name="foto" id="fotoInput" accept="image/*" capture="environment" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                        
+                        <!-- O input original fica escondido -->
+                        <input type="file" name="foto" id="fotoInput" accept="image/*" capture="environment" class="hidden" required>
+                        
+                        <!-- Este é o novo botão que o usuário verá -->
+                        <label for="fotoInput" class="cursor-pointer inline-flex items-center justify-center py-2 px-6 rounded-lg font-semibold btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                            </svg>
+                            Tirar Foto ou Enviar Foto
+                        </label>
+                        <span id="fileName" class="ml-4 text-sm text-gray-600">Nenhum arquivo selecionado.</span>
+
                          <img id="preview" src="" alt="Prévia da foto" class="hidden mt-4 rounded-lg max-h-48 mx-auto"/>
                     </div>
                     <textarea name="observacoes" placeholder="Observações Gerais (Opcional)" rows="4" class="w-full p-3 rounded-lg form-input"></textarea>
@@ -231,7 +243,7 @@
     const steps = document.getElementsByClassName("form-step");
     const progressBar = document.getElementById("progressBar");
     const progressMessage = document.getElementById("progressMessage");
-    const SCRIPT_URL = ''; // <-- COLE AQUI A URL DO SEU SCRIPT DO GOOGLE
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby30wWQhU7bVbpTy9abN-9FUcDneE3u0BpoP4gs-BP9w6-64-mut1akZiTsDbvfik19sA/exec'; // <-- COLE AQUI A URL DO SEU SCRIPT DO GOOGLE
 
     document.addEventListener("DOMContentLoaded", function() {
         showStep(currentStep);
@@ -361,17 +373,23 @@
     // Prévia da foto
     const fotoInput = document.getElementById('fotoInput');
     const preview = document.getElementById('preview');
+    const fileNameSpan = document.getElementById('fileName');
+
     fotoInput.onchange = evt => {
         const [file] = fotoInput.files
         if (file) {
             preview.src = URL.createObjectURL(file);
             preview.classList.remove('hidden');
+            fileNameSpan.textContent = file.name;
+        } else {
+            fileNameSpan.textContent = 'Nenhum arquivo selecionado.';
+            preview.classList.add('hidden');
         }
     }
 
     // Submissão do formulário
     function submitForm() {
-        if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycby30wWQhU7bVbpTy9abN-9FUcDneE3u0BpoP4gs-BP9w6-64-mut1akZiTsDbvfik19sA/exec') {
+        if (SCRIPT_URL === '') {
             alert('ERRO: A URL do Script do Google não foi configurada. Entre em contato com o administrador.');
             return;
         }
@@ -443,5 +461,6 @@
 </script>
 </body>
 </html>
+
 
 
