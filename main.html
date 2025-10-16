@@ -338,7 +338,7 @@
                 return;
             }
             
-            document.getElementById('rua').value = data.logouro;
+            document.getElementById('rua').value = data.logradouro; // <-- CORREÇÃO APLICADA AQUI
             document.getElementById('bairro').value = data.bairro;
             document.getElementById('cidade').value = data.localidade;
             document.getElementById('uf').value = data.uf;
@@ -371,7 +371,7 @@
 
     // Submissão do formulário
     function submitForm() {
-        if (SCRIPT_URL === '') {
+        if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycby30wWQhU7bVbpTy9abN-9FUcDneE3u0BpoP4gs-BP9w6-64-mut1akZiTsDbvfik19sA/exec') {
             alert('ERRO: A URL do Script do Google não foi configurada. Entre em contato com o administrador.');
             return;
         }
@@ -444,4 +444,4 @@
 </body>
 </html>
 
-  
+
