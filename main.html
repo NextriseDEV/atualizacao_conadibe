@@ -63,6 +63,14 @@
             height: 24px;
             animation: spin 1s linear infinite;
         }
+        .loader-sm {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0d2d5a;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -152,7 +160,7 @@
                 <h2 class="text-xl font-semibold primary-text mb-4">4. Endereço</h2>
                 <div class="grid grid-cols-1 gap-4">
                     <input type="text" placeholder="Digite o CEP" name="cep" id="cep" class="p-3 rounded-lg form-input" oninput="maskCEP(this)" onblur="buscarCEP()">
-                    <div id="cep-loader" class="hidden items-center gap-2 text-gray-600"><div class="loader-sm"></div> Buscando endereço...</div>
+                    <div id="cep-loader" class="hidden flex items-center gap-2 text-gray-600"><div class="loader-sm"></div> Buscando endereço...</div>
                     <input type="text" placeholder="Rua / Avenida" name="rua" id="rua" class="p-3 rounded-lg form-input bg-gray-100" readonly>
                     <div class="grid grid-cols-2 gap-4">
                         <input type="text" placeholder="Número" name="numero" class="p-3 rounded-lg form-input">
@@ -206,10 +214,10 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block mb-2 font-medium text-gray-700">Foto para Credencial (3x4)</label>
-                        <p class="text-sm text-gray-500 mb-2">Clique no botão abaixo para <strong>abrir a câmera</strong> e tirar sua foto, ou para escolher uma foto já salva no seu aparelho.</p>
+                        <p class="text-sm text-gray-500 mb-2">Clique no botão abaixo para <strong>abrir sua câmera frontal</strong> e tirar sua foto, ou para escolher uma foto já salva.</p>
                         
                         <!-- O input original fica escondido -->
-                        <input type="file" name="foto" id="fotoInput" accept="image/*" capture="environment" class="hidden" required>
+                        <input type="file" name="foto" id="fotoInput" accept="image/*" capture="user" class="hidden" required>
                         
                         <!-- Este é o novo botão que o usuário verá -->
                         <label for="fotoInput" class="cursor-pointer inline-flex items-center justify-center py-2 px-6 rounded-lg font-semibold btn-primary">
@@ -350,7 +358,7 @@
                 return;
             }
             
-            document.getElementById('rua').value = data.logradouro; // <-- CORREÇÃO APLICADA AQUI
+            document.getElementById('rua').value = data.logradouro;
             document.getElementById('bairro').value = data.bairro;
             document.getElementById('cidade').value = data.localidade;
             document.getElementById('uf').value = data.uf;
@@ -389,7 +397,7 @@
 
     // Submissão do formulário
     function submitForm() {
-        if (SCRIPT_URL === '') {
+        if (SCRIPT_URL === '' || SCRIPT_URL.includes("COLE AQUI")) {
             alert('ERRO: A URL do Script do Google não foi configurada. Entre em contato com o administrador.');
             return;
         }
@@ -442,6 +450,7 @@
                     currentStep = 0;
                     showStep(0);
                     preview.classList.add('hidden');
+                    fileNameSpan.textContent = 'Nenhum arquivo selecionado.';
                 } else {
                     throw new Error(data.message || 'Erro desconhecido');
                 }
@@ -461,6 +470,4 @@
 </script>
 </body>
 </html>
-
-
 
