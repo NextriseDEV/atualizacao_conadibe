@@ -38,6 +38,18 @@
             box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.2);
             outline: none;
         }
+        /* Estilo para o switch toggle */
+        .toggle-checkbox:checked {
+            background-color: #0d2d5a;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #0d2d5a;
+        }
+        .form-input[disabled], .form-input[readonly] {
+            background-color: #f1f5f9;
+            color: #64748b;
+            cursor: not-allowed;
+        }
         .btn-primary {
             background-color: #0d2d5a;
             color: white;
@@ -140,17 +152,57 @@
                         <label class="text-sm font-medium text-gray-600">Data do Batismo nas Águas</label>
                         <input type="text" placeholder="DD/MM/AAAA" name="dataBatismo" class="w-full p-3 rounded-lg form-input" required oninput="maskDate(this)">
                     </div>
-                    <input type="text" placeholder="Ministério ou Campo (Igreja)" name="ministerioCampo" class="w-full p-3 rounded-lg form-input uppercase" required>
+                    <!-- NOVOS CAMPOS MINISTERIO -->
+                    <select name="ministerioPrincipal" id="ministerioPrincipal" class="w-full p-3 rounded-lg form-input bg-white" required onchange="toggleMinisterioFields()">
+                        <option value="" disabled selected>Selecione o Ministério</option>
+                        <option value="ADSA BRASIL">ADSA BRASIL</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                    <div id="ministerioDetalheWrapper" class="hidden">
+                        <input type="text" placeholder="Nome do Campo" name="ministerioDetalhe" id="ministerioDetalhe" class="w-full p-3 rounded-lg form-input uppercase" required>
+                    </div>
                 </div>
             </div>
             
             <!-- Etapa 4: Documentos e Contato -->
             <div class="form-step">
                 <h2 class="text-xl font-semibold primary-text mb-4">3. Documentos e Contato</h2>
+                
+                <!-- Toggle Internacional -->
+                <div class="flex items-center justify-end mb-4">
+                    <label for="internationalToggle" class="mr-3 text-sm font-medium text-gray-900">Cadastro Internacional?</label>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="isInternational" id="internationalToggle" value="true" onchange="toggleInternationalMode()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                        <label for="internationalToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                    </div>
+                </div>
+
                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" placeholder="CPF" name="cpf" class="p-3 rounded-lg form-input" required oninput="maskCPF(this)">
-                    <input type="text" placeholder="RG" name="rg" class="p-3 rounded-lg form-input" required>
-                    <input type="tel" placeholder="Celular com DDD (WhatsApp)" name="celular" class="p-3 rounded-lg form-input md:col-span-2" required oninput="maskPhone(this)">
+                    <!-- Documentos Nacionais -->
+                    <div id="documentosNacionais" class="contents">
+                        <input type="text" placeholder="CPF" name="cpf" id="cpf" class="p-3 rounded-lg form-input" required oninput="maskCPF(this)">
+                        <input type="text" placeholder="RG" name="rg" id="rg" class="p-3 rounded-lg form-input" required>
+                    </div>
+                    <!-- Documento Internacional -->
+                    <div id="documentoInternacionalWrapper" class="hidden md:col-span-2">
+                        <input type="text" placeholder="Nº Documento (Passaporte, ID Estrangeiro)" name="documentoInternacional" id="documentoInternacional" class="p-3 rounded-lg form-input w-full">
+                    </div>
+
+                    <!-- Telefone com DDI -->
+                    <div class="flex items-center md:col-span-2 gap-2">
+                        <select id="countryCode" name="countryCode" onchange="updatePhoneMask()" class="w-1/3 p-3 rounded-lg form-input bg-white">
+                            <option value="+55" selected>Brasil (+55)</option>
+                            <option value="+1">EUA (+1)</option>
+                            <option value="+351">Portugal (+351)</option>
+                            <option value="+44">Reino Unido (+44)</option>
+                            <option value="+81">Japão (+81)</option>
+                            <option value="+244">Angola (+244)</option>
+                            <option value="+595">Paraguai (+595)</option>
+                            <option value="+54">Argentina (+54)</option>
+                            <option value="Outro">Outro País</option>
+                        </select>
+                        <input type="tel" placeholder="Celular (WhatsApp)" name="celular" id="celular" class="w-2/3 p-3 rounded-lg form-input" required oninput="applyCurrentMask(this)">
+                    </div>
                     <input type="email" placeholder="Seu melhor E-mail" name="email" class="p-3 rounded-lg form-input md:col-span-2">
                 </div>
             </div>
@@ -159,16 +211,20 @@
             <div class="form-step">
                 <h2 class="text-xl font-semibold primary-text mb-4">4. Endereço</h2>
                 <div class="grid grid-cols-1 gap-4">
-                    <input type="text" placeholder="Digite o CEP" name="cep" id="cep" class="p-3 rounded-lg form-input" oninput="maskCEP(this)" onblur="buscarCEP()">
-                    <div id="cep-loader" class="hidden flex items-center gap-2 text-gray-600"><div class="loader-sm"></div> Buscando endereço...</div>
+                    <div id="enderecoNacional">
+                        <input type="text" placeholder="Digite o CEP" name="cep" id="cep" class="p-3 rounded-lg form-input" oninput="maskCEP(this)" onblur="buscarCEP()">
+                        <div id="cep-loader" class="hidden flex items-center gap-2 text-gray-600 mt-2"><div class="loader-sm"></div> Buscando endereço...</div>
+                    </div>
+                    
                     <input type="text" placeholder="Rua / Avenida" name="rua" id="rua" class="p-3 rounded-lg form-input bg-gray-100" readonly>
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" placeholder="Número" name="numero" class="p-3 rounded-lg form-input">
-                        <input type="text" placeholder="Complemento (Opcional)" name="complemento" class="p-3 rounded-lg form-input">
+                        <input type="text" placeholder="Número" name="numero" id="numero" class="p-3 rounded-lg form-input">
+                        <input type="text" placeholder="Complemento (Opcional)" name="complemento" id="complemento" class="p-3 rounded-lg form-input">
                     </div>
                     <input type="text" placeholder="Bairro" name="bairro" id="bairro" class="p-3 rounded-lg form-input bg-gray-100" readonly>
                     <input type="text" placeholder="Cidade" name="cidade" id="cidade" class="p-3 rounded-lg form-input bg-gray-100" readonly>
                     <input type="text" placeholder="Estado (UF)" name="uf" id="uf" class="p-3 rounded-lg form-input bg-gray-100" readonly>
+                    <input type="text" placeholder="País" name="pais" id="pais" value="Brasil" class="p-3 rounded-lg form-input bg-gray-100" readonly>
                 </div>
             </div>
             
@@ -252,6 +308,9 @@
     const progressBar = document.getElementById("progressBar");
     const progressMessage = document.getElementById("progressMessage");
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby30wWQhU7bVbpTy9abN-9FUcDneE3u0BpoP4gs-BP9w6-64-mut1akZiTsDbvfik19sA/exec'; // <-- COLE AQUI A URL DO SEU SCRIPT DO GOOGLE
+    
+    // Função de máscara de telefone padrão (Brasil)
+    let currentPhoneMask = (el) => mask(el, '(##) #####-####');
 
     document.addEventListener("DOMContentLoaded", function() {
         showStep(currentStep);
@@ -313,7 +372,8 @@
         
         currentInputs.forEach(input => {
             input.classList.remove('border-red-500');
-            if (!input.value) {
+            // Validação só se aplica a campos visíveis
+            if (input.offsetParent !== null && !input.value) {
                 input.classList.add('border-red-500');
                 valid = false;
             }
@@ -336,12 +396,113 @@
         element.value = masked;
     };
     const maskDate = (el) => mask(el, '##/##/####');
-    const maskPhone = (el) => mask(el, '(##) #####-####');
     const maskCPF = (el) => mask(el, '###.###.###-##');
     const maskCEP = (el) => mask(el, '#####-###');
 
-    // Busca de CEP
+    // Funções de Telefone
+    function updatePhoneMask() {
+        const countryCode = document.getElementById('countryCode').value;
+        const celularInput = document.getElementById('celular');
+        
+        if (countryCode === '+55') {
+            currentPhoneMask = (el) => mask(el, '(##) #####-####');
+            celularInput.placeholder = "(WhatsApp)";
+        } else {
+            // Remove a máscara para outros países
+            currentPhoneMask = (el) => {}; 
+            celularInput.placeholder = "Número de Celular";
+        }
+        celularInput.value = ''; // Limpa o campo ao trocar o país
+    }
+
+    function applyCurrentMask(el) {
+        currentPhoneMask(el);
+    }
+
+    // Lógica do Ministério
+    function toggleMinisterioFields() {
+        const principal = document.getElementById('ministerioPrincipal').value;
+        const wrapper = document.getElementById('ministerioDetalheWrapper');
+        const detalheInput = document.getElementById('ministerioDetalhe');
+
+        if (principal === "ADSA BRASIL") {
+            wrapper.classList.remove('hidden');
+            detalheInput.placeholder = "Nome do Campo (ADSA BRASIL)";
+            detalheInput.required = true;
+        } else if (principal === "Outros") {
+            wrapper.classList.remove('hidden');
+            detalheInput.placeholder = "Nome do Ministério (Ex: AD BELEM)";
+            detalheInput.required = true;
+        } else {
+            wrapper.classList.add('hidden');
+            detalheInput.required = false;
+        }
+    }
+
+    // Lógica do Cadastro Internacional
+    function toggleInternationalMode() {
+        const isInternational = document.getElementById('internationalToggle').checked;
+        
+        // Campos de Documento
+        const docNacional = document.getElementById('documentosNacionais');
+        const docInterWrapper = document.getElementById('documentoInternacionalWrapper');
+        const cpfInput = document.getElementById('cpf');
+        const rgInput = document.getElementById('rg');
+        const docInterInput = document.getElementById('documentoInternacional');
+        
+        // Campos de Endereço
+        const cepWrapper = document.getElementById('enderecoNacional');
+        const cepInput = document.getElementById('cep');
+        const addressFields = ['rua', 'bairro', 'cidade', 'uf', 'pais'];
+
+        if (isInternational) {
+            // Lógica de Documentos
+            docNacional.classList.add('hidden');
+            docInterWrapper.classList.remove('hidden');
+            cpfInput.required = false;
+            rgInput.required = false;
+            docInterInput.required = true;
+            
+            // Lógica de Endereço
+            cepWrapper.classList.add('hidden');
+            cepInput.required = false;
+            addressFields.forEach(id => {
+                const el = document.getElementById(id);
+                el.readOnly = false;
+                el.classList.remove('bg-gray-100');
+                el.classList.add('bg-white');
+                if(id === 'pais') el.value = ''; // Limpa o valor padrão "Brasil"
+            });
+            document.getElementById('pais').placeholder = "País";
+
+        } else {
+            // Lógica de Documentos
+            docNacional.classList.remove('hidden');
+            docInterWrapper.classList.add('hidden');
+            cpfInput.required = true;
+            rgInput.required = true;
+            docInterInput.required = false;
+
+            // Lógica de Endereço
+            cepWrapper.classList.remove('hidden');
+            cepInput.required = true;
+            addressFields.forEach(id => {
+                const el = document.getElementById(id);
+                el.readOnly = true;
+                el.classList.add('bg-gray-100');
+                el.classList.remove('bg-white');
+                el.value = (id === 'pais') ? 'Brasil' : ''; // Reseta campos
+            });
+             document.getElementById('pais').placeholder = "País";
+        }
+    }
+
+
+    // Busca de CEP (só funciona se não for internacional)
     async function buscarCEP() {
+        const isInternational = document.getElementById('internationalToggle').checked;
+        if (isInternational) return; // Não busca CEP se for internacional
+
         const cepInput = document.getElementById('cep');
         const cep = cepInput.value.replace(/\D/g, '');
         const loader = document.getElementById('cep-loader');
@@ -362,6 +523,7 @@
             document.getElementById('bairro').value = data.bairro;
             document.getElementById('cidade').value = data.localidade;
             document.getElementById('uf').value = data.uf;
+            document.getElementById('pais').value = "Brasil"; // Garante que é Brasil
 
         } catch (error) {
             console.error("Erro ao buscar CEP:", error);
@@ -410,6 +572,11 @@
         const nextBtn = document.getElementById('nextBtn');
         const prevBtn = document.getElementById('prevBtn');
 
+        if (!file) {
+            alert('Por favor, selecione uma foto para a credencial.');
+            return;
+        }
+
         loader.classList.remove('hidden');
         nextBtn.classList.add('hidden');
         prevBtn.classList.add('hidden');
@@ -429,6 +596,9 @@
             const data = {};
             formData.forEach((value, key) => data[key] = value);
 
+            // Garante que o valor do checkbox seja enviado
+            data.isInternational = document.getElementById('internationalToggle').checked;
+
             const finalPayload = {
                 ...data,
                 foto: fileData
@@ -446,11 +616,15 @@
                 if (data.result === 'success') {
                     messageDiv.textContent = 'Cadastro enviado com sucesso! Obrigado.';
                     messageDiv.className = 'mt-6 text-center p-4 rounded-lg bg-green-100 text-green-800';
-                    form.reset();
+                    form.reset(); // Limpa o formulário
+                    // Reseta os campos para o estado inicial
                     currentStep = 0;
                     showStep(0);
                     preview.classList.add('hidden');
                     fileNameSpan.textContent = 'Nenhum arquivo selecionado.';
+                    toggleInternationalMode(); // Volta para o modo nacional
+                    toggleMinisterioFields(); // Esconde campos de ministério
+                    toggleConjugeFields(); // Esconde campos de cônjuge
                 } else {
                     throw new Error(data.message || 'Erro desconhecido');
                 }
@@ -465,6 +639,13 @@
                 prevBtn.classList.remove('hidden');
             });
         };
+        
+        fr.onerror = () => {
+             alert('Erro ao ler o arquivo da foto.');
+             loader.classList.add('hidden');
+             nextBtn.classList.remove('hidden');
+             prevBtn.classList.remove('hidden');
+        }
     }
 
 </script>
